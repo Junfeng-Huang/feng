@@ -2,6 +2,7 @@ package framework
 
 import (
 	"context"
+	"feng/framework/container"
 	"net/http"
 	"sync"
 	"time"
@@ -24,11 +25,11 @@ type Context struct {
 	params map[string]string // url路由匹配的参数
 
 	// Container
-	container Container
+	container container.Container
 }
 
 // NewContext 初始化一个Context
-func NewContext(r *http.Request, w http.ResponseWriter, container Container) *Context {
+func NewContext(r *http.Request, w http.ResponseWriter, container container.Container) *Context {
 	return &Context{
 		request:        r,
 		responseWriter: w,

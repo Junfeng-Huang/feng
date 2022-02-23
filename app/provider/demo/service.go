@@ -3,7 +3,7 @@ package demo
 import (
 	"fmt"
 
-	"feng/framework"
+	"feng/framework/container"
 )
 
 // 具体的接口实例
@@ -12,13 +12,13 @@ type DemoService struct {
 	Service
 
 	// 参数
-	c framework.Container
+	c container.Container
 }
 
 // 初始化实例的方法
 func NewDemoService(params ...interface{}) (interface{}, error) {
 	// 这里需要将参数展开
-	c := params[0].(framework.Container)
+	c := params[0].(container.Container)
 
 	fmt.Println("new demo service")
 	// 返回实例

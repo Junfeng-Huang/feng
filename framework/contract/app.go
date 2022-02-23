@@ -1,6 +1,6 @@
 package contract
 
-const AppKey = "hade:app"
+const AppKey = "feng:app"
 
 // App 定义接口
 type App interface {

@@ -2,7 +2,7 @@ package app
 
 import (
 	"errors"
-	"feng/framework"
+	"feng/framework/container"
 	"feng/framework/util"
 	"flag"
 	"path/filepath"
@@ -10,7 +10,7 @@ import (
 
 // FengApp 代表feng框架的App实现
 type FengApp struct {
-	container  framework.Container // 服务容器
+	container  container.Container // 服务容器
 	baseFolder string              // 基础路径
 }
 
@@ -93,7 +93,7 @@ func NewFengApp(params ...interface{}) (interface{}, error) {
 	}
 
 	// 有两个参数，一个是容器，一个是baseFolder
-	container := params[0].(framework.Container)
+	container := params[0].(container.Container)
 	baseFolder := params[1].(string)
 	return &FengApp{baseFolder: baseFolder, container: container}, nil
 }

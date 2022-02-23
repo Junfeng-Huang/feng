@@ -1,16 +1,26 @@
 package framework
 
 import (
+	"context"
+	"feng/framework/container"
+	"feng/framework/provider/app"
+	"feng/framework/provider/config"
+	"feng/framework/provider/env"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 )
 
 // Core represent core struct
 type Core struct {
 	router      map[string]*Tree    // all routers
 	middlewares []ControllerHandler // 从core这边设置的中间件
-	container   Container
+	container   container.Container
+	closeWait   time.Duration
 }
 
 // 初始化core结构
@@ -21,7 +31,18 @@ func NewCore() *Core {
 	router["POST"] = NewTree()
 	router["PUT"] = NewTree()
 	router["DELETE"] = NewTree()
-	core := &Core{router: router, container: NewFengContainer()}
+	core := &Core{router: router, container: container.NewFengContainer()}
+	return core
+}
+
+// 初始化core并且bind默认服务
+func Default() *Core {
+	core := NewCore()
+	// TODO: Bind default provider
+	core.Bind(&app.FengAppProvider{})
+	core.Bind(&env.FengEnvProvider{})
+	core.Bind(&config.FengConfigProvider{})
+
 	return core
 }
 
@@ -86,7 +107,7 @@ func (c *Core) FindRouteNodeByRequest(request *http.Request) *node {
 }
 
 // core封装container
-func (core *Core) Bind(provider ServiceProvider) error {
+func (core *Core) Bind(provider container.ServiceProvider) error {
 	return core.container.Bind(provider)
 }
 
@@ -94,14 +115,55 @@ func (core *Core) IsBind(key string) bool {
 	return core.container.IsBind(key)
 }
 
+// closeWait
+func (core *Core) GetCloseWait() time.Duration {
+	return core.closeWait
+}
+
+func (core *Core) SetCloseWait(t time.Duration) {
+	core.closeWait = t
+}
+
 // 直接启动框架
 func (core *Core) Run(addr ...string) {
+	var address string
+	switch len(addr) {
+	case 0:
+		address = ":8080"
+	case 1:
+		address = addr[0]
+	default:
+		panic("too many parameters")
+	}
+	server := &http.Server{
+		Handler: core,
+		Addr:    address,
+	}
 
+	// 这个goroutine是启动服务的goroutine
+	go func() {
+		server.ListenAndServe()
+	}()
+
+	//  设置等待信号量。可以不在main里面设置，在其他Goroutine也可以收到信息
+	quit := make(chan os.Signal)
+	// 监控信号：SIGINT, SIGTERM, SIGQUIT
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	// 等待信号
+	<-quit
+
+	// 调用Server.Shutdown graceful结束
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), core.closeWait)
+	defer cancel()
+
+	if err := server.Shutdown(timeoutCtx); err != nil {
+		log.Fatal("Server Shutdown:", err)
+	}
 }
 
 // 使用命令行操作框架
-func (core *Core) RunWithCommand(addr ...string) {
-
+func (core *Core) RunbyCommand(addr ...string) {
+	// TODO:实现通过命令行操作框架
 }
 
 // 所有请求都进入这个函数, 这个函数负责路由分发

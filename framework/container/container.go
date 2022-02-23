@@ -1,4 +1,4 @@
-package framework
+package container
 
 import (
 	"errors"
@@ -45,25 +45,26 @@ func NewFengContainer() *FengContainer {
 }
 
 // PrintProviders 输出服务容器中注册的关键字
-func (Feng *FengContainer) PrintProviders() []string {
+func (feng *FengContainer) PrintProviders() []string {
 	ret := []string{}
-	for _, provider := range Feng.providers {
+	feng.lock.RLock()
+	for _, provider := range feng.providers {
 		name := provider.Name()
 
 		line := fmt.Sprint(name)
 		ret = append(ret, line)
 	}
+	feng.lock.RUnlock()
 	return ret
 }
 
 // Bind 将服务容器和关键字做了绑定
 func (feng *FengContainer) Bind(provider ServiceProvider) error {
 	feng.lock.Lock()
-	defer feng.lock.Unlock()
 	key := provider.Name()
 
 	feng.providers[key] = provider
-
+	feng.lock.Unlock()
 	// if provider is not defer
 	if !provider.IsDefer() {
 		if err := provider.Boot(feng); err != nil {
@@ -82,6 +83,8 @@ func (feng *FengContainer) Bind(provider ServiceProvider) error {
 }
 
 func (feng *FengContainer) IsBind(key string) bool {
+	feng.lock.RLock()
+	defer feng.lock.RUnlock()
 	return feng.findServiceProvider(key) != nil
 }
 
@@ -145,20 +148,17 @@ func (feng *FengContainer) make(key string, params []interface{}, forceNew bool)
 		feng.lock.RUnlock()
 		return ins, nil
 	}
+
 	feng.lock.RUnlock()
 
-	// 防止多个goroutine延迟创建实例时同时回写map引发并发写问题。 使用双重检查
-	feng.lock.Lock()
-	defer feng.lock.Unlock()
-	if ins, ok := feng.instances[key]; ok {
-		return ins, nil
-	}
+	// 防止多个goroutine延迟创建实例时同时回写map引发并发写问题。
 	// 容器中还未实例化，则进行一次实例化
-	inst, err := feng.newInstance(sp, nil)
+	ins, err := feng.newInstance(sp, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	feng.instances[key] = inst
-	return inst, nil
+	feng.lock.Lock()
+	defer feng.lock.Unlock()
+	feng.instances[key] = ins
+	return ins, nil
 }

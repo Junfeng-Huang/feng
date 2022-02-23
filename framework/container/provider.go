@@ -1,4 +1,4 @@
-package framework
+package container
 
 // NewInstance 定义了如何创建一个新实例，所有服务容器的创建服务
 type NewInstance func(...interface{}) (interface{}, error)
