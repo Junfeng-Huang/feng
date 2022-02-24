@@ -15,4 +15,5 @@ func main() {
 
 	appHttp.Routes(core)
 	core.Run("0.0.0.0:8888")
+	// command.RunCommand()
 }
