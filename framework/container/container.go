@@ -124,7 +124,7 @@ func (feng *FengContainer) newInstance(sp ServiceProvider, params []interface{})
 	method := sp.Register(feng)
 	ins, err := method(params...)
 	if err != nil {
-		return nil, errors.New(err.Error())
+		return nil, err
 	}
 	return ins, err
 }

@@ -3,6 +3,7 @@ package middleware
 import (
 	"feng/framework"
 	"fmt"
+	"time"
 )
 
 func Test1() framework.ControllerHandler {
@@ -11,6 +12,8 @@ func Test1() framework.ControllerHandler {
 		fmt.Println("middleware pre test1")
 		c.Next()
 		fmt.Println("middleware post test1")
+		time.Sleep(1 * time.Second)
+		fmt.Println("this is test1")
 	}
 }
 

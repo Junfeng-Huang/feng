@@ -3,10 +3,10 @@ package framework
 // IGroup 代表前缀分组
 type IGroup interface {
 	// 实现HttpMethod方法
-	Get(string, ...ControllerHandler)
-	Post(string, ...ControllerHandler)
-	Put(string, ...ControllerHandler)
-	Delete(string, ...ControllerHandler)
+	GET(string, ...ControllerHandler)
+	POST(string, ...ControllerHandler)
+	PUT(string, ...ControllerHandler)
+	DELETE(string, ...ControllerHandler)
 
 	// 实现嵌套group
 	Group(string) IGroup
@@ -35,31 +35,31 @@ func NewGroup(core *Core, prefix string) *Group {
 }
 
 // 实现Get方法
-func (g *Group) Get(uri string, handlers ...ControllerHandler) {
+func (g *Group) GET(uri string, handlers ...ControllerHandler) {
 	uri = g.getAbsolutePrefix() + uri
 	allHandlers := append(g.getMiddlewares(), handlers...)
-	g.core.Get(uri, allHandlers...)
+	g.core.GET(uri, allHandlers...)
 }
 
 // 实现Post方法
-func (g *Group) Post(uri string, handlers ...ControllerHandler) {
+func (g *Group) POST(uri string, handlers ...ControllerHandler) {
 	uri = g.getAbsolutePrefix() + uri
 	allHandlers := append(g.getMiddlewares(), handlers...)
-	g.core.Post(uri, allHandlers...)
+	g.core.POST(uri, allHandlers...)
 }
 
 // 实现Put方法
-func (g *Group) Put(uri string, handlers ...ControllerHandler) {
+func (g *Group) PUT(uri string, handlers ...ControllerHandler) {
 	uri = g.getAbsolutePrefix() + uri
 	allHandlers := append(g.getMiddlewares(), handlers...)
-	g.core.Put(uri, allHandlers...)
+	g.core.PUT(uri, allHandlers...)
 }
 
 // 实现Delete方法
-func (g *Group) Delete(uri string, handlers ...ControllerHandler) {
+func (g *Group) DELETE(uri string, handlers ...ControllerHandler) {
 	uri = g.getAbsolutePrefix() + uri
 	allHandlers := append(g.getMiddlewares(), handlers...)
-	g.core.Delete(uri, allHandlers...)
+	g.core.DELETE(uri, allHandlers...)
 }
 
 // 获取当前group的绝对路径

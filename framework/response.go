@@ -70,7 +70,7 @@ func (ctx *Context) Jsonp(obj interface{}) IResponse {
 		return ctx
 	}
 	// 输出右括号
-	_, err = ctx.responseWriter.Write([]byte(")"))
+	_, err = ctx.responseWriter.Write([]byte(");"))
 	if err != nil {
 		return ctx
 	}
@@ -91,12 +91,14 @@ func (ctx *Context) Xml(obj interface{}) IResponse {
 // html输出
 func (ctx *Context) Html(file string, obj interface{}) IResponse {
 	// 读取模版文件，创建template实例
-	t, err := template.New("output").ParseFiles(file)
+	t, err := template.ParseFiles(file)
 	if err != nil {
+		ctx.responseWriter.Write([]byte(err.Error()))
 		return ctx
 	}
 	// 执行Execute方法将obj和模版进行结合
 	if err := t.Execute(ctx.responseWriter, obj); err != nil {
+		ctx.responseWriter.Write([]byte(err.Error()))
 		return ctx
 	}
 

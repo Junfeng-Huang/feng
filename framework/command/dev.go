@@ -52,7 +52,6 @@ type dev struct {
 func (d *dev) getDevFolder() string {
 	if d.folder == "" {
 		d.folder = util.GetExecDirectory()
-		return d.folder
 	}
 	return d.folder
 }

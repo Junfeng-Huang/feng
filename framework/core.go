@@ -31,7 +31,7 @@ func NewCore() *Core {
 	router["POST"] = NewTree()
 	router["PUT"] = NewTree()
 	router["DELETE"] = NewTree()
-	core := &Core{router: router, container: container.NewFengContainer()}
+	core := &Core{router: router, container: container.NewFengContainer(), closeWait: 3 * time.Second}
 	return core
 }
 
@@ -54,7 +54,7 @@ func (c *Core) Use(middlewares ...ControllerHandler) {
 // === http method 封装
 
 // 匹配GET 方法, 增加路由规则
-func (c *Core) Get(url string, handlers ...ControllerHandler) {
+func (c *Core) GET(url string, handlers ...ControllerHandler) {
 	// 将core的middleware 和 handlers结合起来
 	allHandlers := append(c.middlewares, handlers...)
 	if err := c.router["GET"].AddRouter(url, allHandlers); err != nil {
@@ -63,7 +63,7 @@ func (c *Core) Get(url string, handlers ...ControllerHandler) {
 }
 
 // 匹配POST 方法, 增加路由规则
-func (c *Core) Post(url string, handlers ...ControllerHandler) {
+func (c *Core) POST(url string, handlers ...ControllerHandler) {
 	allHandlers := append(c.middlewares, handlers...)
 	if err := c.router["POST"].AddRouter(url, allHandlers); err != nil {
 		log.Fatal("add router error: ", err)
@@ -71,7 +71,7 @@ func (c *Core) Post(url string, handlers ...ControllerHandler) {
 }
 
 // 匹配PUT 方法, 增加路由规则
-func (c *Core) Put(url string, handlers ...ControllerHandler) {
+func (c *Core) PUT(url string, handlers ...ControllerHandler) {
 	allHandlers := append(c.middlewares, handlers...)
 	if err := c.router["PUT"].AddRouter(url, allHandlers); err != nil {
 		log.Fatal("add router error: ", err)
@@ -79,7 +79,7 @@ func (c *Core) Put(url string, handlers ...ControllerHandler) {
 }
 
 // 匹配DELETE 方法, 增加路由规则
-func (c *Core) Delete(url string, handlers ...ControllerHandler) {
+func (c *Core) DELETE(url string, handlers ...ControllerHandler) {
 	allHandlers := append(c.middlewares, handlers...)
 	if err := c.router["DELETE"].AddRouter(url, allHandlers); err != nil {
 		log.Fatal("add router error: ", err)
@@ -159,11 +159,6 @@ func (core *Core) Run(addr ...string) {
 	if err := server.Shutdown(timeoutCtx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
-}
-
-// 使用命令行操作框架
-func (core *Core) RunbyCommand(addr ...string) {
-	// TODO:实现通过命令行操作框架
 }
 
 // 所有请求都进入这个函数, 这个函数负责路由分发
