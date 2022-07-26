@@ -1,5 +1,8 @@
-temp1/temp1.go
-temp2/temp2.go
+temp1/
+temp2/
+log/
+runtime/
+storage/
 framework/cobra
 feng.exe
 .devcontainer/devcontainer.json

@@ -213,19 +213,6 @@ func TestContextIResponseJsonp(t *testing.T) {
 	assert.Equal(t, "call({\"Foo\":\"bar\"});", w.Body.String())
 }
 
-func TestContextIResponseHtml(t *testing.T) {
-	w := httptest.NewRecorder()
-	ctx := Context{responseWriter: w}
-	type htmlTestOBJ struct {
-		Name string
-	}
-	htlmTest := htmlTestOBJ{Name: "test"}
-	w.Body = bytes.NewBuffer(nil)
-	ctx.responseWriter = w
-	ctx.Html("../template/test.html", htlmTest)
-	assert.Equal(t, "Hello test", w.Body.String())
-}
-
 func TestContextIResponseText(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx := Context{responseWriter: w}
