@@ -11,5 +11,5 @@ func main() {
 	core.Bind(&demo.DemoServiceProvider{})
 	appHttp.Routes(core)
 	core.Run("0.0.0.0:8888")
-	// command.RunCommand()
+
 }
